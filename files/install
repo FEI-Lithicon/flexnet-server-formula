@@ -1,0 +1,99 @@
+et timeout 60
+
+spawn FlexNetLmadminInstaller/lmadmin-i86_lsb-11_12_1_1.bin
+
+expect "PRESS <ENTER> TO CONTINUE*" {
+        send -- "\r"
+}
+
+expect "ENTER AN ABSOLUTE PATH, OR PRESS <ENTER> TO ACCEPT THE DEFAULT" {
+        send -- "\r"
+}
+
+expect {
+        "There is already an installation of  FlexNet Publisher License Server" {
+                    sleep 1
+                                send -- "\r"
+                                    }
+
+            "PRESS <ENTER> TO ACCEPT THE DEFAULT*" {
+                        send -- "\r"
+                                }
+}
+
+expect {
+        "ENTER A COMMA-SEPARATED LIST OF NUMBERS REPRESENTING THE DESIRED CHOICES, OR\r\n   PRESS <ENTER> TO ACCEPT THE DEFAULT: " {
+                send -- "\r"
+                        }
+
+            "PRESS <ENTER> TO CONTINUE: " {
+                        send -- "\r"
+                                }
+}
+
+expect {
+        "PRESS <ENTER> TO CONTINUE: " {
+                    send -- "\r"
+                            }
+
+                "Enter the HTTP Port Number*" {
+                                    send -- "\r"
+                                                }
+}
+
+expect {
+        "   Do you want to overwrite the existing file?: " {
+                    send -- "1\r"
+                            }
+
+                "Enter the License Server Port Number*" {
+                                    send -- "27001\r"
+                                                }
+}
+
+
+expect {
+        "   PRESS <ENTER> TO ACCEPT THE DEFAULT: " {
+                    send -- "\r"
+                            }
+
+                "Enter the HTTP Port Number*" {
+                                    send -- "\r"
+                                                }
+}
+
+expect {
+             "PRESS <ENTER> TO EXIT THE INSTALLER*" {
+                                 send -- "\r"
+                                             }
+
+
+                     "Enter the License Server Port Number*" {
+                                         send -- "27001\r"
+                                                     }
+}
+
+expect {
+            eof {
+                            exit
+                                        }
+
+                "   PRESS <ENTER> TO ACCEPT THE DEFAULT: " {
+                            send -- "\r"
+                                    }
+}
+
+expect {
+            eof {
+                                exit
+                                            }
+
+                     "PRESS <ENTER> TO EXIT THE INSTALLER*" {
+                                         send -- "\r"
+                                                     }
+}
+
+
+
+expect eof { exit }
+

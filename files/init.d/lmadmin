@@ -1,0 +1,94 @@
+#! /bin/sh
+#
+# #-----------------------------------------------------------#
+# # WARNING: This file is managed by Salt, do not edit!
+# # Any changes made to this file will be overwritten by Salt.
+# #-----------------------------------------------------------#
+#
+# Example startup script for the license administration daemon.
+#
+# On Redhat systems this file would go in the /etc/rc.d/init.d directory (make
+# sure it's marked executable after copying it there), and then the command:
+#
+#       'chkconfig lmadmin on'
+#
+# can be used to tell the system to run it on startup.
+#
+# On Solaris this script must be copied at least to /etc/rc3.d with an
+# appropriate file name to control when the license server is started.
+#
+# chkconfig: - 80 20
+# description: lmadmin is the licensing module server and administration UI..
+
+# Source function library.
+if [ -x /etc/rc.d/init.d/functions ]; then
+. /etc/rc.d/init.d/functions
+fi
+
+installDir="/opt/FNPLicenseServerManager"
+lmadminUser="lmadmin"
+pidFile=${PIDFILE-${installDir}/logs/lmadmin.pid}
+lmadmin="${installDir}/lmadmin"
+
+# logfile for any output that doesn't end up in normal logfiles
+consoleLog="${installDir}/logs/console.log"
+
+# Path to the executable
+
+retVal=0
+
+start() {
+    echo -n "Starting License Manager Daemon:"
+    if [ -x /etc/rc.d/init.d/functions ]; then
+        daemon --user $lmadminUser --pidfile=${pidFile} "$lmadmin" -root "$installDir"
+    else
+        su $lmadminUser -c "$lmadmin -root $installDir" > "$consoleLog" 2>&1 &
+    fi
+
+    echo
+    retVal=$?
+}
+
+stopserver() {
+    echo -n "Shutting down License Manager Daemon:"
+
+    FGRED=`echo "\033[31m"`
+    FGGREEN=`echo "\033[32m"`
+    FGWHITE=`echo "\033[37m"`
+
+    read pid < $pidFile
+    if kill -TERM $pid >/dev/null 2>&1; then
+        sleep 20
+    kill -KILL $pid >/dev/null 2>&1
+        echo -e "                      [""${FGGREEN}""  OK  ""${FGWHITE}""]""${NORMAL}"
+        return 0
+    else
+        echo -e "                      [""${FGRED}"" FAILED ""${FGWHITE}""]""${NORMAL}"
+        return 0
+    fi
+
+    echo
+    retVal=$?
+}
+
+# See how we were called.
+case "$1" in
+  start)
+    start
+    ;;
+  stop)
+    stopserver
+    ;;
+  restart)
+    stopserver
+    sleep 2
+    start
+    ;;
+  *)
+    echo "Usage: lmadmin {start|stop|restart}"
+    exit 1
+    ;;
+esac
+
+exit $retVal
+
