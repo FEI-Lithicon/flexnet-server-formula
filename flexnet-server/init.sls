@@ -40,13 +40,8 @@ flexnet-server:
     - tar_options: v 
     - archive_format: tar
 
-  file.managed:
-    - name: {{ tmp_path }}
+  cmd.script:
     - source: 'salt://flexnet/files/install'
-    - file_mode: 700
-
-  cmd.run:
-    - name: './install'
     - cwd: {{ tmp_path }}
 
   grains.present:
