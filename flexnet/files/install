@@ -1,4 +1,4 @@
-et timeout 60
+set timeout 60
 
 spawn FlexNetLmadminInstaller/lmadmin-i86_lsb-11_12_1_1.bin
 
