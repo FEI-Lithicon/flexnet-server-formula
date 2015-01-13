@@ -15,6 +15,8 @@
     - group: root
     - mode: 755
     - template: jinja
+    - defaults:
+      install_path: {{ install_path }}
 
 /etc/profile.d/flexnet.sh:
     file.managed:
@@ -23,6 +25,8 @@
       - group: root
       - mode: 755
       - template: jinja
+      - defaults:
+        tools_path: {{ tools_path }}
 
 
 
