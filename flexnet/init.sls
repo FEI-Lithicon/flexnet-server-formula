@@ -5,6 +5,7 @@
 {% set source_hash = 'md5=cdbd194c06227572bc2268509d75e866' %}
 {% set tmp_path = '/tmp/flexnet/' %}
 {% set install_path = '/opt/FNPLicenseServerManager' %}
+{% set tools_path = '/opt/FlexNetLicenseServerTools' %}
 
 
 /etc/init.d/lmadmin:
@@ -13,6 +14,17 @@
     - user: root
     - group: root
     - mode: 755
+    - template: jinja
+
+/etc/profile.d/flexnet.sh:
+    file.managed:
+      - source: 'salt://flexnet/files/profile.d/flexnet.sh'
+      - user: root
+      - group: root
+      - mode: 755
+      - template: jinja
+
+
 
 flexnet-server:
   pkg.installed:
@@ -47,6 +59,28 @@ flexnet-server:
   grains.present:
     - name: flexnet-server
     - value: {{ version }}
+
+FlexNetLicenseServerTools:
+  - source: {{ tmp_path }}/FlexNetLicenseServerTools
+  - force: True
+  - user: lmadmin
+  - group: lmadmin
+  - mode: 770
+
+{{ install_path }}/mcslmd:
+  - source: {{ tmp_path }}/FlexNetLicenseServerTools/mcslmd
+  - force: True
+  - user: lmadmin
+  - group: lmadmin
+  - mode: 770
+
+{{ install_path }}/mcslmd:_libFNP.so:
+  - source: {{ tmp_path }}/FlexNetLicenseServerTools/mcslmd_libFNP.so
+  - force: True
+  - user: lmadmin
+  - group: lmadmin
+  - mode: 770
+  
 {% endif %}
 
 

@@ -1,9 +1,6 @@
 #! /bin/sh
 #
-# #-----------------------------------------------------------#
-# # WARNING: This file is managed by Salt, do not edit!
-# # Any changes made to this file will be overwritten by Salt.
-# #-----------------------------------------------------------#
+{{ pillar['filebanner']['banner"'] }}
 #
 # Example startup script for the license administration daemon.
 #
@@ -25,7 +22,7 @@ if [ -x /etc/rc.d/init.d/functions ]; then
 . /etc/rc.d/init.d/functions
 fi
 
-installDir="/opt/FNPLicenseServerManager"
+installDir="{{install_path}}"
 lmadminUser="lmadmin"
 pidFile=${PIDFILE-${installDir}/logs/lmadmin.pid}
 lmadmin="${installDir}/lmadmin"
