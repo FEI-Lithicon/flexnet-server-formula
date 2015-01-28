@@ -65,25 +65,28 @@ flexnet-server:
     - value: {{ version }}
 
 FlexNetLicenseServerTools:
-  - source: {{ tmp_path }}/FlexNetLicenseServerTools
-  - force: True
-  - user: lmadmin
-  - group: lmadmin
-  - mode: 770
+  file.managed:
+    - source: {{ tmp_path }}/FlexNetLicenseServerTools
+    - force: True
+    - user: lmadmin
+    - group: lmadmin
+    - mode: 770
 
 {{ install_path }}/mcslmd:
-  - source: {{ tmp_path }}/FlexNetLicenseServerTools/mcslmd
-  - force: True
-  - user: lmadmin
-  - group: lmadmin
-  - mode: 770
+  file.managed:
+    - source: {{ tmp_path }}/FlexNetLicenseServerTools/mcslmd
+    - force: True
+    - user: lmadmin
+    - group: lmadmin
+    - mode: 770
 
-{{ install_path }}/mcslmd:_libFNP.so:
-  - source: {{ tmp_path }}/FlexNetLicenseServerTools/mcslmd_libFNP.so
-  - force: True
-  - user: lmadmin
-  - group: lmadmin
-  - mode: 770
+{{ install_path }}/mcslmd_libFNP.so:
+  file.managed:
+    - source: {{ tmp_path }}/FlexNetLicenseServerTools/mcslmd_libFNP.so
+    - force: True
+    - user: lmadmin
+    - group: lmadmin
+    - mode: 770
   
 {% endif %}
 
