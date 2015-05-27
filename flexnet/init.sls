@@ -3,9 +3,21 @@
 {% set version = '11.12.1.1' %}
 {% set source_path = 'ftp://ftp.vsg3d.com/private/LICENSING/FLEXnet/11.12.1.1/flexnet-server_11.12.1.1_Linux-x86_64-gcc41.tar.gz' %}
 {% set source_hash = 'md5=cdbd194c06227572bc2268509d75e866' %}
-{% set tmp_path = '/tmp/flexnet/' %}
+{% set tmp_path = '/tmp/flexnet' %}
+{% set base_path = '/opt' %}
 {% set install_path = '/opt/FNPLicenseServerManager' %}
 {% set tools_path = '/opt/FlexNetLicenseServerTools' %}
+
+
+/lib/systemd/system/lmadmin.service:
+  file.managed:
+    - source: 'salt://flexnet/files/systemd/lmadmin.service'
+    - user: root
+    - group: root
+    - mode: 755 
+    - template: jinja
+    - defaults:
+      install_path: {{ install_path }}
 
 
 /etc/init.d/lmadmin:
@@ -29,10 +41,14 @@
         tools_path: {{ tools_path }}
 
 
-
 flexnet-server:
   pkg.installed:
-    - name: gcc-multilib
+    - pkgs:
+      - gcc-multilib
+      - lsb-base
+      - lsb-core
+      - lsb-release
+      - lsb-security
 
   group.present:
     - name: lmadmin
@@ -47,6 +63,7 @@ flexnet-server:
     - createhome: False
 
 {% if salt['grains.get']('flexnet-server') != version %}
+flexnet-archive:
   archive:
     - extracted
     - keep: True
@@ -56,38 +73,58 @@ flexnet-server:
     - tar_options: v 
     - archive_format: tar
 
-  cmd.script:
-    - source: 'salt://flexnet/files/install'
+salt://flexnet/files/install:
+  cmd.wait_script:
     - cwd: {{ tmp_path }}
+    - watch:
+      - archive: flexnet-archive
+    - require:
+      - archive: flexnet-archive
 
+FlexNetLicenseServerTools:
+  file.rename:
+    - source: {{ tmp_path ~ '/FlexNetLicenseServerTools' }}
+    - name: {{ tools_path }}
+    - force: True
+    - makedirs: True
+    - require:
+      - archive: flexnet-archive
+
+{{ install_path }}/mcslmd:
+  file.copy:
+    - source: {{ tools_path }}/mcslmd
+    - force: True
+    - user: lmadmin
+    - group: lmadmin
+    - mode: 770
+    - require:
+      - file: FlexNetLicenseServerTools
+
+{{ install_path }}/mcslmd_libFNP.so:
+  file.copy:
+    - source: {{ tools_path }}/mcslmd_libFNP.so
+    - force: True
+    - user: lmadmin
+    - group: lmadmin
+    - mode: 770
+    - require:
+      - file: FlexNetLicenseServerTools
+
+flexnet-version-grain:
   grains.present:
     - name: flexnet-server
     - value: {{ version }}
+    - require:
+      - file: FlexNetLicenseServerTools
+      - file: {{ install_path }}/mcslmd_libFNP.so
+      - file: {{ install_path }}/mcslmd
 
-FlexNetLicenseServerTools:
-  file.managed:
-    - source: {{ tmp_path }}/FlexNetLicenseServerTools
-    - force: True
-    - user: lmadmin
-    - group: lmadmin
-    - mode: 770
+flexnet-clean-tmp:
+  file.absent:
+    - name: {{ tmp_path }}
+    - require:
+      - grains: flexnet-version-grain
 
-{{ install_path }}/mcslmd:
-  file.managed:
-    - source: {{ tmp_path }}/FlexNetLicenseServerTools/mcslmd
-    - force: True
-    - user: lmadmin
-    - group: lmadmin
-    - mode: 770
-
-{{ install_path }}/mcslmd_libFNP.so:
-  file.managed:
-    - source: {{ tmp_path }}/FlexNetLicenseServerTools/mcslmd_libFNP.so
-    - force: True
-    - user: lmadmin
-    - group: lmadmin
-    - mode: 770
-  
 {% endif %}
 
 
@@ -102,12 +139,16 @@ FlexNetLicenseServerTools:
       - user
       - group
       - mode
+    - require_in:
+      - service: lmadmin
 
 {{  install_path ~ '/logs' }}:
    file.directory:
     - makedirs: True
     - user: lmadmin
     - group: lmadmin
+    - require_in:
+      - service: lmadmin
 
 lmadmin:
   service:

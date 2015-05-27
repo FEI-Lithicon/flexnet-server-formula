@@ -1,0 +1,14 @@
+[Unit]
+Description=Flexnet Licence Manager Server
+After=syslog.target
+
+[Service]
+WorkingDirectory={{ install_path }}
+ExecStart={{ install_path }}/lmadmin
+PIDFile={{ install_path }}/logs/lmadmin.pid
+Restart=on-failure
+StandardError=syslog
+
+[Install]
+WantedBy=multi-user.target
+

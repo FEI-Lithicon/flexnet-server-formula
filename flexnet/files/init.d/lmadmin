@@ -1,6 +1,6 @@
 #! /bin/sh
 #
-{{ pillar['filebanner']['banner"'] }}
+{{ pillar['filebanner']['banner#'] }}
 #
 # Example startup script for the license administration daemon.
 #
