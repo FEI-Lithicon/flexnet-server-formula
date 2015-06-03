@@ -14,7 +14,7 @@
     - source: 'salt://flexnet/files/systemd/lmadmin.service'
     - user: root
     - group: root
-    - mode: 755 
+    - mode: 644 
     - template: jinja
     - defaults:
       install_path: {{ install_path }}
